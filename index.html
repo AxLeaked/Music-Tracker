@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Music Tracker</title>
+  </head>
+  <body>
+    <h1>Welcome To Stats! :)</h1>
+    <form onsubmit="addTrack(event)">
+      <label for="artist">Artist:</label>
+      <input type="text" id="artist" name="artist">
+      <br>
+      <label for="album">Album:</label>
+      <input type="text" id="album" name="album">
+      <br>
+      <label for="track">Track:</label>
+      <input type="text" id="track" name="track">
+      <br>
+      <label for="plays">Plays:</label>
+      <input type="number" id="plays" name="plays" value="1" min="1">
+      <br>
+      <button type="submit">Add Track</button>
+    </form>
+    <h2>Tracks</h2>
+    <ul id="trackList"></ul>
+
+    <script>
+      const tracks = JSON.parse(localStorage.getItem("tracks")) || [];
+
+      function addTrack(event) {
+        event.preventDefault();
+
+        const artistInput = document.getElementById("artist");
+        const albumInput = document.getElementById("album");
+        const trackInput = document.getElementById("track");
+        const playsInput = document.getElementById("plays");
+
+        const artist = artistInput.value.trim();
+        const album = albumInput.value.trim();
+        const track = trackInput.value.trim();
+        const plays = Number(playsInput.value);
+
+        if (artist && track && plays) {
+          const existingTrack = tracks.find(t => t.artist === artist && t.album === album && t.track === track);
+
+          if (existingTrack) {
+            existingTrack.plays += plays;
+          } else {
+            tracks.push({ artist, album, track, plays });
+          }
+
+          localStorage.setItem("tracks", JSON.stringify(tracks));
+          renderTrackList();
+        }
+
+        artistInput.value = "";
+        albumInput.value = "";
+        trackInput.value = "";
+        playsInput.value = 1;
+        artistInput.focus();
+      }
+
+      function renderTrackList() {
+        const trackList = document.getElementById("trackList");
+
+        while (trackList.firstChild) {
+          trackList.removeChild(trackList.firstChild);
+        }
+
+        tracks.forEach(track => {
+          const item = document.createElement("li");
+          const text = document.createTextNode(`${track.artist} - ${track.album} - ${track.track} (${track.plays})`);
+          item.appendChild(text);
+          trackList.appendChild(item);
+        });
+      }
+
+      renderTrackList();
+    </script>
+  </body>
+</html>
